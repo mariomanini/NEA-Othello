@@ -14,6 +14,7 @@ def start():
     print("Press 't'to run a game in the terminal and 'g' to run a game in the GUI:")
 
 
+
 if __name__ == "__main__":
   if argv[1]:
     start() 

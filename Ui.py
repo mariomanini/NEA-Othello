@@ -16,7 +16,7 @@ class Terminal(Ui):
   def __init__(self):
     self.__game = Game()
     
-  def __turn(self):
+  def __turn(self): #Requesting the row and column for the next person's move
     while True:
         row = int(input("Enter row: "))
         col = int(input("Enter col: "))
@@ -26,25 +26,15 @@ class Terminal(Ui):
           print("Enter a number between 1 and 8")
     return row,col
 
-  def run(self):
-    print(self.__game)
-    row,col = self.__turn()
-    try:
-      self.__game.play(row,col)
-      print(self.__game)
-    except:
-      pass
-
-
-
-
-
-    
-    
-
-
-  
-  
+  def run(self): #The continuous run of the game - printing out the board, getting the move, and trying to play the move.
+    while True:
+      print(self.__game) #Print the board
+      row,col = self.__turn() #Recieve move input
+      try:
+        self.__game.play(row,col) #Make the move
+      except:
+        pass
+      
 class Gui(Ui):
 
   def __init__():
