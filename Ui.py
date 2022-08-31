@@ -32,6 +32,7 @@ class Terminal(Ui):
       row,col = self.__turn() #Recieve move input
       try:
         self.__game.play(row,col) #Make the move
+        self.__game.flip(row,col)
       except:
         pass
       
