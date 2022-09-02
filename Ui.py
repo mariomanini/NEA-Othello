@@ -13,6 +13,9 @@ class Ui():
 
 class Terminal(Ui):
   
+  def Exception():
+    pass
+
   def __init__(self):
     self.__game = Game()
     

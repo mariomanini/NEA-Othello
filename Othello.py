@@ -1,3 +1,5 @@
+from Board import *
+
 class Game():
 
   EMPTY = "_"
@@ -152,16 +154,17 @@ class Game():
       self.__player = Game.p1
 
 
-    
-  
+
+
 
   def play(self,row,col):
     col -= 1
     row -= 1
-    if self.__board[row][col] != Game.EMPTY: #If the square is free, place a counter
-      pass
-    self.__board[row][col] = self.__player #Placing the counter
-
+    if self.__board[row][col] != Game.EMPTY:
+      print("Place on an empty square!")
+      raise Exception
+    else:
+      self.__board[row][col] = self.__player
 
   def result(self):
     return None
