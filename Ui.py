@@ -21,12 +21,18 @@ class Terminal(Ui):
     
   def __turn(self): #Requesting the row and column for the next person's move
     while True:
-        row = int(input("Enter row: "))
-        col = int(input("Enter col: "))
-        if 1 <= row <= 8 and 1 <= col <= 8:
+      while True:
+        try:
+          row = int(input("Enter row: "))
+          col = int(input("Enter col: "))
           break
-        else:
-          print("Enter a number between 1 and 8")
+        except ValueError:
+          print("Enter an integer...")
+          continue
+      if 1 <= row <= 8 and 1 <= col <= 8:
+        break
+      else:
+        print("Enter a number between 1 and 8")
     return row,col
 
   def run(self): #The continuous run of the game - printing out the board, getting the move, and trying to play the move.
