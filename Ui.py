@@ -36,6 +36,7 @@ class Terminal(Ui):
       try:
         self.__game.play(row,col) #Make the move
         self.__game.flip(row,col)
+        self.__game.countercount()
       except:
         pass
       

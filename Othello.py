@@ -155,6 +155,23 @@ class Game():
 
 
 
+  def countercount(self):
+    totalcounters = 0
+    p1counters = 0
+    p2counters = 0
+    for a in range(8):
+      for b in range(8):
+        space = self.__board[a][b]
+        if space == "w" or space == "b":
+          if space == Game.p1:
+            totalcounters += 1
+            p1counters += 1
+          if space == Game.p2:
+            totalcounters += 1
+            p2counters += 1
+    print(f"Total number of counters: {totalcounters} \n {Game.p1}'s counters: {p1counters} \n {Game.p2}'s counters: {p2counters}")
+        
+
 
 
   def play(self,row,col):
@@ -165,6 +182,7 @@ class Game():
       raise Exception
     else:
       self.__board[row][col] = self.__player
+      print()
 
   def result(self):
     return None
