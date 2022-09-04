@@ -36,13 +36,14 @@ class Terminal(Ui):
     return row,col
 
   def run(self): #The continuous run of the game - printing out the board, getting the move, and trying to play the move.
-    while True:
+    while self.__game.result() == None:
+      self.__game.getpossiblemoves()
       print(self.__game) #Print the board
       row,col = self.__turn() #Recieve move input
       try:
         self.__game.play(row,col) #Make the move
-        self.__game.flip(row,col)
-        self.__game.countercount()
+        self.__game.flip(row,col,self.__game.getboard()) #Flip the counters and remove the possible moves
+        self.__game.countercount() #Count and display the counters
       except:
         pass
       
