@@ -14,6 +14,7 @@ class Game():
     self.__board[3][4] = Game.p1
     self.__board[4][3] = Game.p1
     self.__player = Game.p1
+    self.__winner = False
 
   def __repr__(self):
     output = "\n  " + " ".join(str(i+1) for i in range(8))
@@ -218,10 +219,8 @@ class Game():
                 if self.__board[newx + d[0]][newy + d[1]] == Game.EMPTY:
                   self.__board[newx + d[0]][newy + d[1]] = Game.move
             break
+    
 
-      
-             
-        
 
     #iterate through all of one colour
     #for each tile of that colour, look in all directions, if there is a trail  of the opposite colour leading to an empty space
@@ -230,6 +229,7 @@ class Game():
         
 
   def play(self,row,col):
+  
     col -= 1
     row -= 1
     if self.__board[row][col] == Game.move:
@@ -243,8 +243,21 @@ class Game():
         raise Exception
 
   def result(self):
-    return None
-
+    '''
+    moves = 0
+    counters = 0
+    for a in range(8):
+      for b in range(8):
+        if self.__board[a][b] == Game.move:
+          moves += 1
+        if self.__board[a][b] == Game.p1 or self.__board[a][b] == Game.p2:
+          counters += 1
+    if moves == 0 and counters > 0:
+      return True
+    else:
+      return False
+    '''
+    pass
 
 
     

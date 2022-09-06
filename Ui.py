@@ -36,7 +36,7 @@ class Terminal(Ui):
     return row,col
 
   def run(self): #The continuous run of the game - printing out the board, getting the move, and trying to play the move.
-    while self.__game.result() == None:
+    while True:
       self.__game.getpossiblemoves()
       print(self.__game) #Print the board
       row,col = self.__turn() #Recieve move input
