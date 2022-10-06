@@ -1,4 +1,3 @@
-from Board import *
 
 class Game():
 
@@ -20,11 +19,10 @@ class Game():
     output = "\n  " + " ".join(str(i+1) for i in range(8))
     for row in range(8):
       output = output + "\n" + str(row+1) + " " + " ".join(self.__board[row][i] for i in range(8))
-    output = output + "\n" + (f"{self.__player} to play: ")
+    output = output + "\n" + (f"{self.__player}'s turn: ")
     return output
 
-
-  def flip(self,row,col,board):
+  def flipcounters(self,row,col,board):
     row -= 1
     col -= 1
     #Normally would be 7,5
@@ -160,8 +158,6 @@ class Game():
     else:
       self.__player = Game.p1
 
-
-
   def countercount(self):
     totalcounters = 0
     p1counters = 0
@@ -180,10 +176,9 @@ class Game():
         
   def getboard(self):
     return self.__board
-    
-
 
   def getpossiblemoves(self):
+    totalmoves = 0
     p1coords = []
     p2coords = []
     for a in range(8):
@@ -205,6 +200,7 @@ class Game():
                   break
                 if self.__board[newx + d[0]][newy + d[1]] == Game.EMPTY:
                   self.__board[newx + d[0]][newy + d[1]] = Game.move
+                  totalmoves += 1
             break
     
     if self.__player == Game.p2:
@@ -218,18 +214,32 @@ class Game():
                   break
                 if self.__board[newx + d[0]][newy + d[1]] == Game.EMPTY:
                   self.__board[newx + d[0]][newy + d[1]] = Game.move
+                  totalmoves += 1
             break
-    
-
-
-    #iterate through all of one colour
-    #for each tile of that colour, look in all directions, if there is a trail  of the opposite colour leading to an empty space
-    #add the empty space to a list
-    
         
+  def gettotalmoves(self):
+    totalmoves = 0
+    for a in range(8):
+      for b in range(8):
+        if self.__board[a][b] == Game.move:
+          totalmoves += 1
+    return totalmoves
+
+  def reviewstate(self):
+    if self.gettotalmoves() == 0:
+      if self.__player == Game.p1:
+        self.__player = Game.p2
+        print(f"{Game.p1} passed because they can't move!")
+        return "p"
+      elif self.__player == Game.p2:
+        self.__player = Game.p1
+        print(f"{Game.p2} passed because they can't move!")
+        return "p"
+
+    
 
   def play(self,row,col):
-  
+
     col -= 1
     row -= 1
     if self.__board[row][col] == Game.move:
@@ -242,22 +252,9 @@ class Game():
         print("Can't make that move!")
         raise Exception
 
-  def result(self):
-    '''
-    moves = 0
-    counters = 0
-    for a in range(8):
-      for b in range(8):
-        if self.__board[a][b] == Game.move:
-          moves += 1
-        if self.__board[a][b] == Game.p1 or self.__board[a][b] == Game.p2:
-          counters += 1
-    if moves == 0 and counters > 0:
-      return True
-    else:
-      return False
-    '''
-    pass
+    
+
+
 
 
     

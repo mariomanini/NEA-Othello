@@ -37,15 +37,17 @@ class Terminal(Ui):
 
   def run(self): #The continuous run of the game - printing out the board, getting the move, and trying to play the move.
     while True:
-      self.__game.getpossiblemoves()
+      self.__game.getpossiblemoves() #Add the move tiles
       print(self.__game) #Print the board
-      row,col = self.__turn() #Recieve move input
-      try:
-        self.__game.play(row,col) #Make the move
-        self.__game.flip(row,col,self.__game.getboard()) #Flip the counters and remove the possible moves
-        self.__game.countercount() #Count and display the counters
-      except:
-        pass
+      self.__game.reviewstate()
+      if self.__game.reviewstate() != "p":
+        row,col = self.__turn() #Recieve move input
+        try:
+          self.__game.play(row,col) #Make the move
+          self.__game.flipcounters(row,col,self.__game.getboard()) #Flip the counters and remove the possible moves
+          self.__game.countercount() #Count and display the counters
+        except:
+          pass
       
 class Gui(Ui):
 
