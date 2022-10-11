@@ -217,7 +217,7 @@ class Game():
                   totalmoves += 1
             break
         
-  def gettotalmoves(self):
+  def __gettotalmoves(self):
     totalmoves = 0
     for a in range(8):
       for b in range(8):
@@ -226,7 +226,7 @@ class Game():
     return totalmoves
 
   def reviewstate(self):
-    if self.gettotalmoves() == 0:
+    if self.__gettotalmoves() == 0:
       if self.__player == Game.p1:
         self.__player = Game.p2
         print(f"{Game.p1} passed because they can't move!")
@@ -235,8 +235,6 @@ class Game():
         self.__player = Game.p1
         print(f"{Game.p2} passed because they can't move!")
         return "p"
-
-    
 
   def play(self,row,col):
 

@@ -3,6 +3,8 @@ from re import A
 from tempfile import TemporaryFile
 from Othello import Game
 from abc import ABC, abstractmethod
+import tkinter as tk
+from tkinter import *
 
 
 class Ui():
@@ -39,8 +41,8 @@ class Terminal(Ui):
     while True:
       self.__game.getpossiblemoves() #Add the move tiles
       print(self.__game) #Print the board
-      self.__game.reviewstate()
-      if self.__game.reviewstate() != "p":
+      self.__game.reviewstate() #Check if there is a pass to be made
+      if self.__game.reviewstate() != "p": 
         row,col = self.__turn() #Recieve move input
         try:
           self.__game.play(row,col) #Make the move
@@ -51,6 +53,19 @@ class Terminal(Ui):
       
 class Gui(Ui):
 
-  def __init__():
-    super().__init__()
+  def Exception():
+    pass
+
+  def __init__(self):
+    root = Tk()
+    root.title("Othello")
+    frame = Frame(root)
+    frame.pack()
+    title = Label(root, text="Othello")
+    title.pack()
+    root.geometry("1200x800+50+50")
+    root.resizable(False,False)
+    root.iconbitmap(".\Users\Mario\OneDrive\Documents\Python\NEA\oboard.ico")
+
+
 
