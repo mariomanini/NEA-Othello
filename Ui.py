@@ -4,7 +4,8 @@ from tempfile import TemporaryFile
 from Othello import Game
 from abc import ABC, abstractmethod
 import tkinter as tk
-from tkinter import *
+from gui import MainWindow
+
 
 
 class Ui():
@@ -57,15 +58,19 @@ class Gui(Ui):
     pass
 
   def __init__(self):
-    root = Tk()
-    root.title("Othello")
-    frame = Frame(root)
-    frame.pack()
-    title = Label(root, text="Othello")
-    title.pack()
-    root.geometry("1200x800+50+50")
-    root.resizable(False,False)
-    root.iconbitmap(".\Users\Mario\OneDrive\Documents\Python\NEA\oboard.ico")
+    pass
+
+  def run(self):
+    new = MainWindow()
+    new.mainloop()
+
+
+
+
+
+
+
+
 
 
 
