@@ -1,6 +1,7 @@
 
 class Game():
 
+
   EMPTY = "_"
   p1 = "b"
   p2 = "w"
@@ -237,7 +238,6 @@ class Game():
         return "p"
 
   def play(self,row,col):
-
     col -= 1
     row -= 1
     if self.__board[row][col] == Game.move:

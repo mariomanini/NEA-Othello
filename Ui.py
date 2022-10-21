@@ -60,9 +60,15 @@ class Gui(Ui):
   def __init__(self):
     pass
 
+
   def run(self):
-    new = MainWindow()
-    new.mainloop()
+    mainwindow = MainWindow()
+    mainwindow.mainloop()
+
+
+
+
+      
 
 
 
