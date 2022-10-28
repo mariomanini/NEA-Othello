@@ -1,5 +1,4 @@
 import tkinter as tk
-from xml.etree.ElementTree import TreeBuilder
 from Othello import Game
 from PIL import ImageTk, Image
 
@@ -35,13 +34,17 @@ class MainWindow(tk.Tk):
   def __mainwindowpressplay(self):
     gamewin = GameWindow()
 
+
   def __quitmainwindow(self):
       self.destroy()
       self = None
 
 class GameWindow():
 
-  
+  EMPTY = "_"
+  p1 = "⏺"
+  p2 = "◯"
+  move = "!"
 
   def __init__(self):
     self.__game = Game()
@@ -51,7 +54,7 @@ class GameWindow():
 
     gridbox = tk.Frame(self.__window,highlightbackground="black",highlightthickness="3")
     gridbox.pack(fill="both", expand=True)
-    self.__grid = self.__createGrid(gridbox)
+    self.__grid = self.__updateGrid(gridbox)
     gridbox.place(relx=0.5,rely=0.5,width=494,height=494,anchor="c")
 
     backbuttonframe = tk.Frame(self.__window,highlightbackground="black",highlightthickness="3")
@@ -60,6 +63,10 @@ class GameWindow():
     backbutton.config(height=1,width=5)
     backbutton.pack()
 
+    self.run(gridbox)
+
+
+
 
   def __backtomain(self,window):
     window.destroy()
@@ -67,38 +74,49 @@ class GameWindow():
 
 
 
-  def __createGrid(self,window):
+  def __updateGrid(self,window): #changes the grid
     
+    self.__game.getpossiblemoves()
     window.columnconfigure(8, weight=1)
     window.columnconfigure(8, weight=1)
     for r in range(len(self.__game.getboard())):
       for c in range(len(self.__game.getboard())):
-          cmd = lambda row = r, column = c: self.__ButtonPress(row,column) 
+          cmd = lambda row = r, column = c: self.__turn(row,column,window) 
           f = tk.Frame(window,highlightbackground="black",highlightthickness="2",height=61,width=61)
           squarebutton = tk.Button(f,bg="white",height=1,width=1,command=cmd)
           squarebutton.place(relheight=1,relwidth=1)
-          if (r == 4 and c == 4) or (r == 3 and c == 3):
+          if self.__game.getboard()[r][c] == "b":
             squarebutton.config(text="⏺",font=("Arial",70))
-          if (r == 3 and c == 4) or (r == 4 and c == 3):
+          if self.__game.getboard()[r][c] == "w":
             squarebutton.config(text="◯",font=("Arial",40))
-
+          if self.__game.getboard()[r][c] == "!":
+            squarebutton.config(bg="red")
           f.grid(row=r,column=c)
+    
+
+  def __turn(self,row,column,window):
+    row += 1
+    column += 1
+    self.__game.reviewstate()
+    if self.__game.reviewstate() != "p":
+      try:
+        self.__game.play(row,column)
+        self.__game.flipcounters(row,column,self.__game.getboard())
+        self.__game.countercount()
+      except:
+        pass
+      self.__updateGrid(window)
 
 
-  def __ButtonPress(self,row,column):
-    print(f"{row},{column}")
-    return row,column
 
-  def __playgame(self):
-    while True:
-      self.__game.play(self.__ButtonPress)
-  
+  def run(self,window):
+    pass
 
-          #squarebutton.pack(fill="both")
-            #startsquarep1.place(anchor="c")
 
-          #squarebutton.pack(expand=True)
 
+
+    
+    
 
 
         
