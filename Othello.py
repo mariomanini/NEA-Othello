@@ -7,7 +7,7 @@ class Game():
   p2 = "w"
   move = "!"
 
-  def __init__(self):
+  def __init__(self,gamemode):
     self.__board = [[Game.EMPTY for i in range(8)] for i in range(8)]
     self.__board[4][4] = Game.p2
     self.__board[3][3] = Game.p2
@@ -15,6 +15,7 @@ class Game():
     self.__board[4][3] = Game.p1
     self.__player = Game.p1
     self.__winner = False
+    self.__gamemode = gamemode
 
   def __repr__(self):
     output = "\n  " + " ".join(str(i+1) for i in range(8))
@@ -150,14 +151,11 @@ class Game():
     bldrows.clear()
 
     
-    
-
-    
-    print("here")
     if self.__player == Game.p1: 
       self.__player = Game.p2
     else:
       self.__player = Game.p1
+
 
   def countercount(self):
     totalcounters = 0
@@ -177,6 +175,7 @@ class Game():
         
   def getboard(self):
     return self.__board
+
 
   def getpossiblemoves(self):
     totalmoves = 0
@@ -227,15 +226,26 @@ class Game():
     return totalmoves
 
   def reviewstate(self):
-    if self.__gettotalmoves() == 0:
-      if self.__player == Game.p1:
-        self.__player = Game.p2
-        print(f"{Game.p1} passed because they can't move!")
-        return "p"
-      elif self.__player == Game.p2:
-        self.__player = Game.p1
-        print(f"{Game.p2} passed because they can't move!")
-        return "p"
+    if self.__gamemode == "2 Player":
+      if self.__gettotalmoves() == 0:
+        if self.__player == Game.p1:
+          self.__player = Game.p2
+          print(f"{Game.p1} passed because they can't move!")
+          return "p"
+        elif self.__player == Game.p2:
+          self.__player = Game.p1
+          print(f"{Game.p2} passed because they can't move!")
+          return "p"
+    if self.__gamemode == "AI":
+      if self.__gettotalmoves() == 0:
+        if self.__player == Game.p1:
+          self.__player = Game.p2
+          print(f"{Game.p1} passed because they couldn't move!")
+          return "p"
+        elif self.__player == Game.p2:
+          self.__player = Game.p1
+          print(f"The AI passed because they couldn't move!")
+
 
   def play(self,row,col):
     col -= 1
@@ -249,6 +259,7 @@ class Game():
       if self.__board[row][col] != Game.move:
         print("Can't make that move!")
         raise Exception
+
 
     
 

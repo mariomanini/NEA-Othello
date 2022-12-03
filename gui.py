@@ -1,6 +1,8 @@
 import tkinter as tk
 from Othello import Game
 from PIL import ImageTk, Image
+from AI import ai
+import time
 
 class MainWindow(tk.Tk):
   
@@ -10,7 +12,7 @@ class MainWindow(tk.Tk):
     self.attributes('-fullscreen',True)
     self.configure(bg="#32a842")
 
-    title = tk.Label(self,text="Othello",font=("Arial",25))
+    title = tk.Label(self,text="Othello",bg="#32a842",font=("Arial",25))
     title.place(relx=0.5,rely=0.1,anchor="c")
 
     frame = tk.Frame(self,bg="#32a842")
@@ -23,7 +25,7 @@ class MainWindow(tk.Tk):
     playbutton.pack(fill="x",expand=True,anchor=tk.N)
 
 
-    settingsbutton = tk.Button(frame, text="Settings",font=("Arial",15),bg="white")
+    settingsbutton = tk.Button(frame, text="Settings",font=("Arial",15),bg="white",command=self.__mainwindowsettings)
     settingsbutton.config(height=2)
     settingsbutton.pack(fill="x",expand=True,anchor=tk.E)
 
@@ -32,12 +34,50 @@ class MainWindow(tk.Tk):
     quitbutton.pack(fill="x",expand=True,anchor=tk.S)
 
   def __mainwindowpressplay(self):
-    gamewin = GameWindow()
+    pregamewin = PreGameWindow()
 
+  def __mainwindowsettings(self):
+    settingswindow = SettingsWindow()
 
   def __quitmainwindow(self):
-      self.destroy()
-      self = None
+    self.destroy()
+    self = None
+
+
+class SettingsWindow():
+
+  def __init__(self):
+    self.__window = tk.Toplevel(bg="#32a842")
+    self.__window.resizable(True,True)
+    self.__window.attributes('-fullscreen',True)
+
+class PreGameWindow():
+
+  def __init__(self):
+    self.__window = tk.Toplevel(bg="#32a842")
+    self.__window.resizable(True,True)
+    self.__window.attributes('-fullscreen',True)
+
+    startbutton = tk.Button(self.__window, text="Start",command=lambda: self.__startgame(menu),font=("Arial",15),bg="white")
+    startbutton.pack() #Play game button
+
+    menu = tk.StringVar()
+    menu.set("Select Gamemode")
+
+
+    drop = tk.OptionMenu(self.__window, menu,"2 Player","AI")
+    drop.pack()
+
+
+
+
+  def __startgame(self,menu):
+    gamemode = menu.get()
+    gamewin = GameWindow(gamemode) #Game window created
+    self.__window.destroy()
+    self.__window = None
+
+      
 
 class GameWindow():
 
@@ -46,11 +86,12 @@ class GameWindow():
   p2 = "◯"
   move = "!"
 
-  def __init__(self):
-    self.__game = Game()
+  def __init__(self,gamemode):
+    self.__game = Game(gamemode)
     self.__window = tk.Toplevel(bg="#32a842")
     self.__window.resizable(True,True)
     self.__window.attributes('-fullscreen',True)
+    self.__gamemode = gamemode
 
     gridbox = tk.Frame(self.__window,highlightbackground="black",highlightthickness="3")
     gridbox.pack(fill="both", expand=True)
@@ -63,15 +104,9 @@ class GameWindow():
     backbutton.config(height=1,width=5)
     backbutton.pack()
 
-    self.run(gridbox)
-
-
-
-
-  def __backtomain(self,window):
+  def __backtomain(self,window): #Function for deleting going to main menu from game
     window.destroy()
     window = None
-
 
 
   def __updateGrid(self,window): #changes the grid
@@ -92,25 +127,43 @@ class GameWindow():
           if self.__game.getboard()[r][c] == "!":
             squarebutton.config(bg="red")
           f.grid(row=r,column=c)
-    
+  
 
-  def __turn(self,row,column,window):
+  def __turn(self,row,column,window): #Placing counter and flipping counters
+    aimove = -1
     row += 1
     column += 1
-    self.__game.reviewstate()
-    if self.__game.reviewstate() != "p":
+    if self.__gamemode == "2 Player":
+      self.__game.reviewstate()
+      if self.__game.reviewstate() != "p":
+        try:
+          self.__game.play(row,column)
+          self.__game.flipcounters(row,column,self.__game.getboard())
+          self.__game.countercount()
+        except:
+          pass
+        self.__updateGrid(window)
+    if self.__gamemode == "AI":
       try:
         self.__game.play(row,column)
         self.__game.flipcounters(row,column,self.__game.getboard())
         self.__game.countercount()
+
       except:
-        pass
+        print("something wrong")
       self.__updateGrid(window)
 
 
 
-  def run(self,window):
-    pass
+        #self.__game.play(3,4)
+        #self.__game.flipcounters(row,column,self.__game.getboard())
+
+      self.__updateGrid(window)
+      time.sleep(3)
+
+
+
+
 
 
 

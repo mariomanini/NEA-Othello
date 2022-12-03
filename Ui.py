@@ -42,7 +42,7 @@ class Terminal(Ui):
     while True:
       self.__game.getpossiblemoves() #Add the move tiles
       print(self.__game) #Print the board
-      self.__game.reviewstate() #Check if there is a pass to be made
+      self.__game.reviewstate() #Che ck if there is a pass to be made
       if self.__game.reviewstate() != "p": 
         row,col = self.__turn() #Recieve move input
         try:
