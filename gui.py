@@ -3,6 +3,7 @@ from Othello import Game
 from PIL import ImageTk, Image
 from AI import ai
 import time
+from tkinter import messagebox
 
 class MainWindow(tk.Tk):
   
@@ -58,24 +59,30 @@ class PreGameWindow():
     self.__window.resizable(True,True)
     self.__window.attributes('-fullscreen',True)
 
-    startbutton = tk.Button(self.__window, text="Start",command=lambda: self.__startgame(menu),font=("Arial",15),bg="white")
-    startbutton.pack() #Play game button
+    frame = tk.Frame(self.__window,bg="#32a842")
+    frame.pack(fill="both", expand=True)
+    frame.place(relx=0.5,rely=0.55,relwidth=0.2,relheight=0.7,anchor="c")
 
     menu = tk.StringVar()
     menu.set("Select Gamemode")
 
+    drop = tk.OptionMenu(frame, menu,"2 Player","Easy AI")
+    drop.pack(fill="x",expand=True,anchor=tk.N)
 
-    drop = tk.OptionMenu(self.__window, menu,"2 Player","AI")
-    drop.pack()
-
-
+    startbutton = tk.Button(frame, text="Start",command=lambda: self.__startgame(menu),font=("Arial",15),bg="white")
+    startbutton.config(height=2)
+    startbutton.pack(fill="x",expand=True,anchor=tk.N)
 
 
   def __startgame(self,menu):
+
     gamemode = menu.get()
-    gamewin = GameWindow(gamemode) #Game window created
-    self.__window.destroy()
-    self.__window = None
+    if gamemode == "Select Gamemode":
+      tk.messagebox.showerror(title="Warning",message="Select a Gamemode first!")
+    else:
+      gamewin = GameWindow(gamemode) #Game window created
+      self.__window.destroy()
+      self.__window = None
 
       
 
@@ -86,8 +93,11 @@ class GameWindow():
   p2 = "◯"
   move = "!"
 
+  def Exception():
+    pass
+
   def __init__(self,gamemode):
-    self.__game = Game(gamemode)
+    self.__game = Game(gamemode,"g")
     self.__window = tk.Toplevel(bg="#32a842")
     self.__window.resizable(True,True)
     self.__window.attributes('-fullscreen',True)
@@ -104,13 +114,31 @@ class GameWindow():
     backbutton.config(height=1,width=5)
     backbutton.pack()
 
+    blackscoreboardframe = tk.Frame(self.__window,highlightbackground="black",highlightthickness="3")
+    blackscoreboardframe.pack(fill="both",expand=True)
+    blackscoreboardframe.place(relx=0.22,rely=0.285,width=200,height=100,anchor="c")
+    blackscorevalue = tk.StringVar(blackscoreboardframe,self.__game.countercount()[0])
+    blackscorepicture = tk.Label(blackscoreboardframe,text="●",font=("Arial",55)).place(relx=0.1)
+    blackscorelabel = tk.Label(blackscoreboardframe,textvariable=str(blackscorevalue),font=("Arial",30)).place(relx=0.5,rely=0.25)
+
+
+    whitescoreboardframe = tk.Frame(self.__window,highlightbackground="black",highlightthickness="3")
+    whitescoreboardframe.pack(fill="both",expand=True)
+    whitescoreboardframe.place(relx=0.78,rely=0.715,width=200,height=100,anchor="c")
+    whitescorevalue = tk.StringVar(whitescoreboardframe,self.__game.countercount()[1])
+    whitescorepicture = tk.Label(whitescoreboardframe,text="◯",font=("Arial",24)).place(relx=0.1,rely=0.28)
+    whitescorelabel = tk.Label(whitescoreboardframe,textvariable=str(whitescorevalue),font=("Arial",30)).place(relx=0.5,rely=0.25)
+
+    
+
+
+
   def __backtomain(self,window): #Function for deleting going to main menu from game
     window.destroy()
     window = None
 
 
   def __updateGrid(self,window): #changes the grid
-    
     self.__game.getpossiblemoves()
     window.columnconfigure(8, weight=1)
     window.columnconfigure(8, weight=1)
@@ -125,16 +153,15 @@ class GameWindow():
           if self.__game.getboard()[r][c] == "w":
             squarebutton.config(text="◯",font=("Arial",40))
           if self.__game.getboard()[r][c] == "!":
-            squarebutton.config(bg="red")
+            squarebutton.config(bg="blue")
           f.grid(row=r,column=c)
-  
+
 
   def __turn(self,row,column,window): #Placing counter and flipping counters
-    aimove = -1
+
     row += 1
     column += 1
     if self.__gamemode == "2 Player":
-      self.__game.reviewstate()
       if self.__game.reviewstate() != "p":
         try:
           self.__game.play(row,column)
@@ -143,23 +170,58 @@ class GameWindow():
         except:
           pass
         self.__updateGrid(window)
-    if self.__gamemode == "AI":
-      try:
-        self.__game.play(row,column)
-        self.__game.flipcounters(row,column,self.__game.getboard())
-        self.__game.countercount()
-
-      except:
-        print("something wrong")
-      self.__updateGrid(window)
+      if self.__game.reviewstate() == "p":
+        self.__updateGrid(window)
+        self.__game.checkwinner()
 
 
 
-        #self.__game.play(3,4)
-        #self.__game.flipcounters(row,column,self.__game.getboard())
+    #When a tile is pressed, if the gamemode is AI, play the move, then give the ai a chance to move
 
-      self.__updateGrid(window)
-      time.sleep(3)
+
+
+    if self.__gamemode.split(" ")[-1] == "AI":
+
+
+      
+      gameai = ai()
+      possiblewinner = 0
+
+      #if the player has to pass,
+
+      if self.__game.reviewstate() != "p":
+        try:
+          if self.__game.play(row,column): 
+            return #Give player chance to play again
+          else:
+            self.__game.flipcounters(row,column,self.__game.getboard())
+            self.__game.countercount()     
+        except:
+          print("something wrong (Player)")
+      else:
+        self.__updateGrid(window)
+        self.__game.checkwinner()
+
+
+      self.__game.getpossiblemoves()
+
+
+      if self.__game.reviewstate() != "p":
+        try:
+          aimove = gameai.getmove(self.__game.getboard(),self.__gamemode.split(" ")[0])
+          self.__game.play(aimove[0],aimove[1])
+          self.__game.flipcounters(aimove[0],aimove[1],self.__game.getboard())
+          self.__game.countercount()
+          self.__updateGrid(window)
+        except:
+          print("something wrong (AI)")
+      else:
+        self.__updateGrid(window)
+        self.__game.checkwinner()
+
+
+
+      
 
 
 

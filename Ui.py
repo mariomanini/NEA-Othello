@@ -20,7 +20,7 @@ class Terminal(Ui):
     pass
 
   def __init__(self):
-    self.__game = Game()
+    self.__game = Game("2 Player","t")
     
   def __turn(self): #Requesting the row and column for the next person's move
     while True:
@@ -36,7 +36,7 @@ class Terminal(Ui):
         break
       else:
         print("Enter a number between 1 and 8")
-    return row,col
+    return row,col  
 
   def run(self): #The continuous run of the game - printing out the board, getting the move, and trying to play the move.
     while True:
@@ -51,7 +51,13 @@ class Terminal(Ui):
           self.__game.countercount() #Count and display the counters
         except:
           pass
-      
+      else:
+        if self.__game.checkwinner() == True:
+          break
+          
+
+
+
 class Gui(Ui):
 
   def Exception():

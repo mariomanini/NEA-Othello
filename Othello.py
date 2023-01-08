@@ -1,3 +1,6 @@
+import time
+from copy import deepcopy
+
 
 class Game():
 
@@ -7,7 +10,7 @@ class Game():
   p2 = "w"
   move = "!"
 
-  def __init__(self,gamemode):
+  def __init__(self,gamemode,ui):
     self.__board = [[Game.EMPTY for i in range(8)] for i in range(8)]
     self.__board[4][4] = Game.p2
     self.__board[3][3] = Game.p2
@@ -16,6 +19,8 @@ class Game():
     self.__player = Game.p1
     self.__winner = False
     self.__gamemode = gamemode
+    self.__ui = ui
+    self.__boards = [] #A list of the states of the boards as the game progresses
 
   def __repr__(self):
     output = "\n  " + " ".join(str(i+1) for i in range(8))
@@ -29,12 +34,11 @@ class Game():
     col -= 1
     #Normally would be 7,5
     #Indexing means it would be 6,4
-
     for a in range(8):
       for b in range(8):
         if self.__board[a][b] == Game.move:
           self.__board[a][b] = Game.EMPTY
-    
+
     for i in range(row-1,0,-1):
       if board[i][col] == self.__player:
         for b in range(i+1,row):
@@ -95,7 +99,7 @@ class Game():
     trdcolumns.clear()
 
 
-    
+
     tld = 1
     tldrows = []
     tldcolumns = []
@@ -158,6 +162,7 @@ class Game():
 
 
   def countercount(self):
+
     totalcounters = 0
     p1counters = 0
     p2counters = 0
@@ -171,52 +176,61 @@ class Game():
           if space == Game.p2:
             totalcounters += 1
             p2counters += 1
-    print(f"Total number of counters: {totalcounters} \n {Game.p1}'s counters: {p1counters} \n {Game.p2}'s counters: {p2counters}")
+    
+    if self.__ui == "t":
+      print(f"Total number of counters: {totalcounters} \n {Game.p1}'s counters: {p1counters} \n {Game.p2}'s counters: {p2counters}")
+    if self.__ui == "g":
+      return p1counters,p2counters
+
+
+
         
   def getboard(self):
     return self.__board
 
 
   def getpossiblemoves(self):
+  
+    if self.__player == Game.p1:
+      opponent = Game.p2
+    else:
+      opponent = Game.p1
+    
     totalmoves = 0
-    p1coords = []
-    p2coords = []
+    playercoords = []
+
+
     for a in range(8):
       for b in range(8):
-        if self.__board[a][b] == Game.p1:
-          p1coords.append((a,b))
-        if self.__board[a][b] == Game.p2:
-          p2coords.append((a,b))
-    
-    directions = [[1,0],[0,1],[1,1],[0,-1],[-1,0],[-1,1],[-1,-1],[-1,1]]
-    if self.__player == Game.p1:
-      for place in p1coords:
-        for d in directions:
-          while True:
-            newx = place[0] + d[0] 
-            newy = place[1] + d[1]
-            if -1 < newx < 8 and -1 < newy < 8:
-                if self.__board[newx][newy] != Game.p2:
-                  break
-                if self.__board[newx + d[0]][newy + d[1]] == Game.EMPTY:
-                  self.__board[newx + d[0]][newy + d[1]] = Game.move
-                  totalmoves += 1
+        if self.__board[a][b] == self.__player:
+          playercoords.append((a,b))
+
+    directions = [[-1,0],[-1,1],[0,1],[1,1],[1,0],[1,-1],[0,-1],[-1,-1]]
+    for place in playercoords: 
+      for d in directions: 
+        k = 1
+        while True:
+          newx = place[0] + k *d[0] 
+          newy = place[1] + k *d[1] 
+          if 0 < newx < 9 and 0 < newy < 9:
+            try:
+              if self.__board[newx][newy] != opponent:
+                break
+              if self.__board[newx + d[0]][newy + d[1]] == Game.EMPTY:
+                self.__board[newx + d[0]][newy + d[1]] = Game.move
+                totalmoves += 1
+            except:
+                break
+          k += 1
+          if k > 8:
             break
     
-    if self.__player == Game.p2:
-      for place in p2coords:
-        for d in directions:
-          while True:
-            newx = place[0] + d[0] 
-            newy = place[1] + d[1]
-            if -1 < newx < 8 and -1 < newy < 8:
-                if self.__board[newx][newy] != Game.p1:
-                  break
-                if self.__board[newx + d[0]][newy + d[1]] == Game.EMPTY:
-                  self.__board[newx + d[0]][newy + d[1]] = Game.move
-                  totalmoves += 1
-            break
-        
+
+
+    self.__boards.append(self.__board.copy.deepcopy())
+    print(self.__boards)
+
+
   def __gettotalmoves(self):
     totalmoves = 0
     for a in range(8):
@@ -224,7 +238,7 @@ class Game():
         if self.__board[a][b] == Game.move:
           totalmoves += 1
     return totalmoves
-
+    
   def reviewstate(self):
     if self.__gamemode == "2 Player":
       if self.__gettotalmoves() == 0:
@@ -236,29 +250,84 @@ class Game():
           self.__player = Game.p1
           print(f"{Game.p2} passed because they can't move!")
           return "p"
-    if self.__gamemode == "AI":
+
+    if self.__gamemode.split(" ")[-1] == "AI":
       if self.__gettotalmoves() == 0:
         if self.__player == Game.p1:
-          self.__player = Game.p2
-          print(f"{Game.p1} passed because they couldn't move!")
+          print(f"The Player passed because they couldn't move!")
           return "p"
         elif self.__player == Game.p2:
-          self.__player = Game.p1
           print(f"The AI passed because they couldn't move!")
+          return "p"
 
+  def checkwinner(self):
+      freespaces = 0
+      p1counters = 0
+      p2counters = 0
+      for a in range(8):
+        for b in range(8):
+          space = self.__board[a][b]
+          if space == Game.p1:
+            p1counters += 1
+          if space == Game.p2:
+            p2counters += 1
+          if space == Game.EMPTY or space == Game.move:
+            freespaces += 1
+
+      if self.__gamemode.split(" ")[-1] == "AI":
+        if self.__player == Game.p1:
+          self.__player = Game.p2
+        else:
+          self.__player = Game.p1
+
+
+
+      if self.reviewstate() == "p":
+        self.__winner = True
+        if p1counters > p2counters:
+          print(f"The winner was {Game.p1}")
+        if p2counters > p1counters:
+          print(f"The winner was {Game.p2}")
+        if p1counters == p2counters:
+            print("It was a draw")
+        return True
+      if freespaces == 0:
+        self.__winner = True
+        if p1counters > p2counters:
+          print(f"The winner was {Game.p1}")
+        if p2counters > p1counters:
+          print(f"The winner was {Game.p2}")
+        if p1counters == p2counters:
+          print("It was a draw")
+      return True
 
   def play(self,row,col):
     col -= 1
     row -= 1
-    if self.__board[row][col] == Game.move:
-      self.__board[row][col] = self.__player
-    else:
-      if self.__board[row][col] != Game.EMPTY:
-        print("Place on an empty square!")
-        raise Exception
-      if self.__board[row][col] != Game.move:
-        print("Can't make that move!")
-        raise Exception
+    if self.__gamemode == "2 Player":
+      if self.__board[row][col] == Game.move:
+        self.__board[row][col] = self.__player
+      else:
+        if self.__board[row][col] != Game.EMPTY:
+          print("Place on an empty square!")
+          raise Exception
+        if self.__board[row][col] != Game.move:
+          print("Can't make that move!")
+          raise Exception
+    
+    if self.__gamemode.split(" ")[-1] == "AI":
+      if self.__board[row][col] == Game.move:
+        self.__board[row][col] = self.__player
+      else:
+        if self.__board[row][col] != Game.EMPTY:
+          print("Place on an empty square!")
+          return -1
+        if self.__board[row][col] != Game.move:
+          print("Can't make that move!")
+          return -1
+
+  def undomove(self):
+    self.__movestack.pop()
 
 
     
