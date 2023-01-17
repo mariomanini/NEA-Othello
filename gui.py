@@ -13,7 +13,7 @@ class MainWindow(tk.Tk):
     self.attributes('-fullscreen',True)
     self.configure(bg="#32a842")
 
-    title = tk.Label(self,text="Othello",bg="#32a842",font=("Arial",25))
+    title = tk.Label(self,text="Othello",bg="#32a842",font=("Helvetica",25))
     title.place(relx=0.5,rely=0.1,anchor="c")
 
     frame = tk.Frame(self,bg="#32a842")
@@ -93,6 +93,8 @@ class GameWindow():
   p2 = "◯"
   move = "!"
 
+
+
   def Exception():
     pass
 
@@ -102,6 +104,7 @@ class GameWindow():
     self.__window.resizable(True,True)
     self.__window.attributes('-fullscreen',True)
     self.__gamemode = gamemode
+
 
     gridbox = tk.Frame(self.__window,highlightbackground="black",highlightthickness="3")
     gridbox.pack(fill="both", expand=True)
@@ -114,22 +117,13 @@ class GameWindow():
     backbutton.config(height=1,width=5)
     backbutton.pack()
 
-    blackscoreboardframe = tk.Frame(self.__window,highlightbackground="black",highlightthickness="3")
-    blackscoreboardframe.pack(fill="both",expand=True)
-    blackscoreboardframe.place(relx=0.22,rely=0.285,width=200,height=100,anchor="c")
-    blackscorevalue = tk.StringVar(blackscoreboardframe,self.__game.countercount()[0])
-    blackscorepicture = tk.Label(blackscoreboardframe,text="●",font=("Arial",55)).place(relx=0.1)
-    blackscorelabel = tk.Label(blackscoreboardframe,textvariable=str(blackscorevalue),font=("Arial",30)).place(relx=0.5,rely=0.25)
+    undobuttonframe = tk.Frame(self.__window,highlightbackground="black",highlightthickness="3")
+    undobuttonframe.pack(side=tk.BOTTOM,anchor="ne")
+    undobutton = tk.Button(undobuttonframe,text="Undo",command=lambda: self.__undo(self.__window),font=("Arial",15))
+    undobutton.config(height=1,width=5)
+    undobutton.pack()
 
-
-    whitescoreboardframe = tk.Frame(self.__window,highlightbackground="black",highlightthickness="3")
-    whitescoreboardframe.pack(fill="both",expand=True)
-    whitescoreboardframe.place(relx=0.78,rely=0.715,width=200,height=100,anchor="c")
-    whitescorevalue = tk.StringVar(whitescoreboardframe,self.__game.countercount()[1])
-    whitescorepicture = tk.Label(whitescoreboardframe,text="◯",font=("Arial",24)).place(relx=0.1,rely=0.28)
-    whitescorelabel = tk.Label(whitescoreboardframe,textvariable=str(whitescorevalue),font=("Arial",30)).place(relx=0.5,rely=0.25)
-
-    
+    self.__updateScore()
 
 
 
@@ -138,6 +132,37 @@ class GameWindow():
     window = None
 
 
+  def __updateScore(self):
+
+    blackscoreboardframe = tk.Frame(self.__window,highlightbackground="black",highlightthickness="3")
+    blackscoreboardframe.pack(fill="both",expand=True)
+    blackscoreboardframe.place(relx=0.22,rely=0.285,width=200,height=100,anchor="c")
+    blackscorevalue = tk.StringVar(blackscoreboardframe,self.__game.countercount()[0])
+    blackscorepicture = tk.Label(blackscoreboardframe,text="●",font=("Arial",55)).place(relx=0.1)
+    blackscorelabel = tk.Label(blackscoreboardframe,textvariable=str(blackscorevalue),font=("Arial",30)).place(relx=0.5,rely=0.25)
+
+    whitescoreboardframe = tk.Frame(self.__window,highlightbackground="black",highlightthickness="3")
+    whitescoreboardframe.pack(fill="both",expand=True)
+    whitescoreboardframe.place(relx=0.78,rely=0.715,width=200,height=100,anchor="c")
+    whitescorevalue = tk.StringVar(whitescoreboardframe,self.__game.countercount()[1])
+    whitescorepicture = tk.Label(whitescoreboardframe,text="◯",font=("Arial",24)).place(relx=0.1,rely=0.28)
+    whitescorelabel = tk.Label(whitescoreboardframe,textvariable=str(whitescorevalue),font=("Arial",30)).place(relx=0.5,rely=0.25)
+
+    if self.__game.getplayer() == self.__game.p1:
+      
+      try:
+        whitescoreboardframe.config(highlightbackground="black")
+      except:
+        pass
+      blackscoreboardframe.config(highlightbackground="red")
+    else:
+      try:
+        blackscoreboardframe.config(highlightbackground="black")
+      except:
+        pass
+      whitescoreboardframe.config(highlightbackground="red")
+      
+    
   def __updateGrid(self,window): #changes the grid
     self.__game.getpossiblemoves()
     window.columnconfigure(8, weight=1)
@@ -153,12 +178,12 @@ class GameWindow():
           if self.__game.getboard()[r][c] == "w":
             squarebutton.config(text="◯",font=("Arial",40))
           if self.__game.getboard()[r][c] == "!":
-            squarebutton.config(bg="blue")
+            squarebutton.config(bg="green")
           f.grid(row=r,column=c)
+    self.__updateScore()
 
 
   def __turn(self,row,column,window): #Placing counter and flipping counters
-
     row += 1
     column += 1
     if self.__gamemode == "2 Player":
@@ -181,14 +206,8 @@ class GameWindow():
 
 
     if self.__gamemode.split(" ")[-1] == "AI":
-
-
-      
       gameai = ai()
       possiblewinner = 0
-
-      #if the player has to pass,
-
       if self.__game.reviewstate() != "p":
         try:
           if self.__game.play(row,column): 
@@ -201,8 +220,6 @@ class GameWindow():
       else:
         self.__updateGrid(window)
         self.__game.checkwinner()
-
-
       self.__game.getpossiblemoves()
 
 
@@ -219,6 +236,9 @@ class GameWindow():
         self.__updateGrid(window)
         self.__game.checkwinner()
 
+  def __undo(self,window):
+    self.__game.undomove()
+    self.__updateGrid(window)
 
 
       

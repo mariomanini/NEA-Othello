@@ -1,5 +1,5 @@
 import time
-from copy import deepcopy
+import copy
 
 
 class Game():
@@ -20,7 +20,8 @@ class Game():
     self.__winner = False
     self.__gamemode = gamemode
     self.__ui = ui
-    self.__boards = [] #A list of the states of the boards as the game progresses
+    initialboard = copy.deepcopy(self.__board)
+    self.__boards = [initialboard] #A list of the states of the boards as the game progresses
 
   def __repr__(self):
     output = "\n  " + " ".join(str(i+1) for i in range(8))
@@ -153,8 +154,13 @@ class Game():
       pass
     bldcolumns.clear()
     bldrows.clear()
+    self.__switchplayer()
 
     
+
+
+
+  def __switchplayer(self):
     if self.__player == Game.p1: 
       self.__player = Game.p2
     else:
@@ -227,8 +233,9 @@ class Game():
     
 
 
-    self.__boards.append(self.__board.copy.deepcopy())
-    print(self.__boards)
+
+
+
 
 
   def __gettotalmoves(self):
@@ -307,6 +314,7 @@ class Game():
     if self.__gamemode == "2 Player":
       if self.__board[row][col] == Game.move:
         self.__board[row][col] = self.__player
+        self.__boards.append(copy.deepcopy(self.__board))
       else:
         if self.__board[row][col] != Game.EMPTY:
           print("Place on an empty square!")
@@ -318,6 +326,7 @@ class Game():
     if self.__gamemode.split(" ")[-1] == "AI":
       if self.__board[row][col] == Game.move:
         self.__board[row][col] = self.__player
+        self.__boards.append(copy.deepcopy(self.__board))
       else:
         if self.__board[row][col] != Game.EMPTY:
           print("Place on an empty square!")
@@ -327,8 +336,25 @@ class Game():
           return -1
 
   def undomove(self):
-    self.__movestack.pop()
+  
+    print(self.__boards)
 
+    try:
+      self.__boards.pop()
+    except:
+      return
+
+    print(self.__boards)
+    
+    self.__board = self.__boards[-1]
+    if self.__player == Game.p1:
+      self.__player = Game.p2
+    else:
+      self.__player = Game.p1
+
+
+  def getplayer(self):
+    return self.__player
 
     
 
