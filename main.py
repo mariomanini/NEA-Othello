@@ -1,40 +1,39 @@
 
 from logging import raiseExceptions
 from sys import *
-from Ui import Terminal
-from Ui import Gui
+import OthelloConfiguration
+
+
+
 
 
 def start():
+
   try:
     if argv[1]:
-      if argv[1] == "g":
-        ui = Gui()
-        ui.run()
-      if argv[1] == "t":
-        ui = Terminal()
-        ui.run()
+      config.run(argv[1])
   except:
-    choice = input("Input 't'to run a game in the terminal and 'g' to run a game in the GUI: ")
-    if choice == "t":
-      ui = Terminal()
-      ui.run()
-    if choice == "g":
-      ui = Gui()
-      ui.run()
+    choice = -1
+    while choice != "t" or choice != "g":
+      choice = input("Input 't' to run a game in the terminal and 'g' to run a game in the GUI: ")
+      config.run(choice)
+
 
 if __name__ == "__main__":
+  config = OthelloConfiguration.OthelloConfig()
   start()
-else:
-  print("not working")
-  
 
 
 
 
 
 
-  
+
+
+
+
+
+
 
     
 
