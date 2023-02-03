@@ -23,10 +23,9 @@ class AIEngine():
 
 
     decisionTree.expand(3)
+    decisionTree.evaluate()
     
     return decisionTree.getBestMove()
-
-    #decisionTree.getBestMove()
 
 
   def __easyaimove(self,board):
@@ -34,4 +33,3 @@ class AIEngine():
     randommove = possiblemoves[random.randint(0,len(possiblemoves)-1)]
     return int(randommove[0])+1,int(randommove[-1])+1
 
-    #return best move

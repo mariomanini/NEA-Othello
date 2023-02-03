@@ -41,7 +41,7 @@ class Board():
     
 
   
-    for i in range(row+1,-1,-1):
+    for i in range(row,-1,-1):
       if self.__board[i][col] == player1:
         for b in range(i+1,row):
           if self.__board[b][col] == player1:
@@ -86,7 +86,7 @@ class Board():
     trdcolumns = []
     trFound = False
     try:
-      while trFound == False and row-trd >= 0 and col+trd <= 7 and self.__board[row-trd][col+trd] != player1.EMPTY:
+      while trFound == False and row-trd >= 0 and col+trd <= 7 and self.__board[row-trd][col+trd] != Board.EMPTY:
         trdrows.append(row-trd)
         trdcolumns.append(col+trd)
         if self.__board[row-trd][col+trd] == player1:
@@ -190,6 +190,7 @@ class Board():
             break
 
 
+
   def undomove(self,gamemode):
     
     if len(self.__boards) == 1:
@@ -200,7 +201,9 @@ class Board():
     self.__board = self.__boards[-1] #FIX
 
 
-  def countercount(self):
+  def countercount(self,evaluate=None):
+
+  
 
     totalcounters = 0
     p1counters = 0
@@ -216,11 +219,15 @@ class Board():
             totalcounters += 1
             p2counters += 1
       
-      
-    if OthelloConfiguration.OthelloConfig.CHOICE == "t":
-      print(f"Total number of counters: {totalcounters} \n {Board.p1}'s counters: {p1counters} \n {Board.p2}'s counters: {p2counters}")
-    if OthelloConfiguration.OthelloConfig.CHOICE == "g":
+    if evaluate == None:
+      if OthelloConfiguration.OthelloConfig.CHOICE == "t":
+        print(f"Total number of counters: {totalcounters} \n {Board.p1}'s counters: {p1counters} \n {Board.p2}'s counters: {p2counters}")
+      if OthelloConfiguration.OthelloConfig.CHOICE == "g":
+        return p1counters,p2counters
+    if evaluate == "Evaluating":
       return p1counters,p2counters
+    else:
+      print("not working")
         
 
   def gettotalmoves(self):
@@ -235,7 +242,6 @@ class Board():
   def getboard(self):
     return self.__board
 
-  
   def generatePossibleBoards(self):
     possibleboards = []
     moves = self.getMoveCoordinates()
@@ -244,7 +250,6 @@ class Board():
     for board in possibleboards:
       board.getpossiblemoves(self.__player,self.__opposingplayer)
     return possibleboards
-
 
   def getMoveCoordinates(self):
     movecoords = []
@@ -387,16 +392,89 @@ class Board():
 
     return newboard
 
-  
-  def isAIturn(self):
+  def isFull(self):
+    FullBoard = True
+    for a in range(8):
+      for b in range(8):
+        if self.__board[a][b] == Board.EMPTY or self.__board == Board.move:
+          FullBoard = False
+    return FullBoard
+ 
+  def isAITurn(self):
     if self.__player == Board.p2:
       return True
   
-  def evaluateBoard(self):
-    return random.randint(-100,100)
-  
   def getmove(self):
+    self.appliedmove = f"{int(self.appliedmove[0])+1},{int(self.appliedmove[-1])+1}"
     return self.appliedmove
+
+  def evaluateBoard(self):
+
+    totalScore = 0
+
+    if self.isFull == True:
+      results = self.countercount("Evaluating")
+      if results[0] > results [1]:
+        return -100
+      else:
+        if results[0] == results[1]:
+          return 0 
+        else:
+          return 100
+
+    else:
+
+      #Moves
+      moveScore = 0
+      moveScore = self.gettotalmoves()
+      totalScore += moveScore
+
+      
+
+      #Corners
+      cornerScore = 0
+      if self.__board[0][0] == Board.move:
+        cornerScore += 10
+      if self.__board[0][7] == Board.move:
+        cornerScore += 10
+      if self.__board[7][0] == Board.move:
+        cornerScore += 10
+      if self.__board[7][7] == Board.move:
+        cornerScore += 10
+
+
+
+      totalScore += cornerScore
+
+      edgeScore = 0
+      for col in range(1,7):
+        pass
+      #Edges
+
+
+
+      #Inner
+
+    
+
+
+
+      return totalScore
+  
+      
+
+
+
+
+
+
+
+
+
+
+
+
+  
 
   
 

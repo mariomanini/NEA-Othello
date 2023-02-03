@@ -1,7 +1,7 @@
 class TreeNode:
 
   def __init__(self,currentBoard,parent=None):
-    self.__currentBoard = currentBoard
+    self.board = currentBoard
     self.__children = []
     self.__parent = parent
     self.__bestchild = None
@@ -9,19 +9,20 @@ class TreeNode:
     #Check if we are in a terminal case. (Both PLayers passing or a winner)
 
   def getBestMove(self):
+    
     return self.__bestchild.board.getmove()
 
   def evaluate(self):
 
-    if len(self.__chilren) == 0:
-      self.score = self.__currentBoard.evaluate()
+    if len(self.__children) == 0:
+      self.score = self.board.evaluateBoard()
     else:
       for child in self.__children:
         child.evaluate()
-      if self.__currentBoard.isAITurn(): #GetMaximum
+      if self.board.isAITurn(): #GetMaximum
         self.score = self.childrenMaxScore()
       else:
-        self.score = self.chidrenMinScore()
+        self.score = self.childrenMinScore()
 
     
 
@@ -62,10 +63,12 @@ class TreeNode:
 
   def expand(self,maxLevel):
     if self.getCurrentLevel() < maxLevel: 
-      boards = self.__currentBoard.generatePossibleBoards()
+      boards = self.board.generatePossibleBoards()
       for board in boards:
         child = TreeNode(board,self)
         child.expand(maxLevel) 
         self.__children.append(child)
+    if len(self.__children) != 0:
+      self.__bestchild = self.__children[0]
 
 

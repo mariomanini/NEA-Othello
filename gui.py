@@ -149,6 +149,7 @@ class GameWindow(MainWindow):
 
 
 
+
   def Exception():
     pass
 
@@ -173,14 +174,16 @@ class GameWindow(MainWindow):
     backbutton.pack()
 
     undobuttonframe = tk.Frame(self.__window,highlightbackground="black",highlightthickness="3")
-    undobuttonframe.pack(side=tk.BOTTOM,anchor="ne")
+    undobuttonframe.place(anchor="c",relx=0.2,rely=0.9)
     undobutton = tk.Button(undobuttonframe,text="Undo",command=lambda: self.__undo(gridbox),font=("Arial",15))
     undobutton.config(height=1,width=5)
     undobutton.pack()
 
+    messagesframe = tk.Frame(self.__window,highlightbackground="black",highlightthickness="3")
+    messagesframe.pack(fill="both",expand=True)
+    messagesframe.place(relx=0.5,rely=0.18,width=494,height=50,anchor="c")
+
     self.__updateScore()
-
-
 
   def __backtomain(self,window): #Function for deleting going to main menu from game
     window.destroy()
@@ -241,7 +244,8 @@ class GameWindow(MainWindow):
     self.__updateScore()
 
 
-  def __turn(self,row,column,window): #Placing counter and flipping counters
+  def __turn(self,row,column,window):
+    
     row += 1
     column += 1
     if self.__gamemode == "2 Player":
@@ -256,7 +260,8 @@ class GameWindow(MainWindow):
         self.__updateGrid(window)
       if self.__game.reviewstate() == "p":
         self.__updateGrid(window)
-        self.__game.checkwinner()
+        if self.__game.checkwinner():
+          displayWinner = tk.Label(self.__window,bg=MainWindow.COLOUR,text=self.__game.checkwinner(),font=("Arial",55)).place(relx=0.1)
 
 
 
@@ -265,7 +270,7 @@ class GameWindow(MainWindow):
 
 
     if self.__gamemode.split(" ")[-1] == "AI":
-      possiblewinner = 0
+
       if self.__game.reviewstate() != "p":
         try:
           if self.__game.play(row,column): 
@@ -283,19 +288,20 @@ class GameWindow(MainWindow):
 
 
       if self.__game.reviewstate() != "p":
-        try:
-          aiEngine = AIEngine(self.__gamemode.split(" ")[0])
-          aimove = aiEngine.getBestMove(self.__game.board)
-          self.__game.play(aimove[0],aimove[1])
-          self.__game.board.flipcounters(aimove[0],aimove[1],self.__game.getplayer())
-          self.__game.switchplayer()
-          self.__game.board.countercount()
-          self.__updateGrid(window)
-        except:
-          print("something wrong (AI)")
+
+        aiEngine = AIEngine(self.__gamemode.split(" ")[0])
+        aimove = aiEngine.getBestMove(self.__game.board)
+        self.__game.play(int(aimove[0]),int(aimove[-1]))
+        self.__game.board.flipcounters(int(aimove[0]),int(aimove[-1]),self.__game.getplayer())
+        self.__game.switchplayer()
+        self.__game.board.countercount()
+        self.__updateGrid(window)
+
       else:
         self.__updateGrid(window)
-        self.__game.checkwinner()
+        if self.__game.checkwinner():
+          displayWinner = tk.Label(self.__window,bg=MainWindow.COLOUR,text=self.__game.checkwinner(),font=("Arial",55)).place(relx=0.1)
+
 
 
 
@@ -303,6 +309,12 @@ class GameWindow(MainWindow):
   def __undo(self,window):
     self.__game.undomove()
     self.__updateGrid(window)      
+
+
+
+    
+
+    
 
 
 

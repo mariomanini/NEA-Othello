@@ -1,6 +1,7 @@
 import time
 import copy
 from Board import Board
+import OthelloConfiguration
 
 
 class Game():
@@ -47,23 +48,32 @@ class Game():
       if self.board.gettotalmoves() == 0:
         if self.__player == Game.p1:
           self.__player = Game.p2
-          print(f"{Game.p1} passed because they can't move!")
-          return "p"
+          if OthelloConfiguration.OthelloConfig.CHOICE == "t":
+            print(f"{Game.p1} passed because they can't move!")
+            return "p"
+          else:
+            return "p",(f"{Game.p1} passed because they can't move!")
         elif self.__player == Game.p2:
           self.__player = Game.p1
-          print(f"{Game.p2} passed because they can't move!")
-          return "p"
+          if OthelloConfiguration.OthelloConfig.CHOICE == "t":
+            print(f"{Game.p2} passed because they can't move!")
+            return "p"
+          else:
+            return "p",(f"{Game.p2} passed because they can't move!")
 
     if self.__gamemode.split(" ")[-1] == "AI":
       if self.board.gettotalmoves() == 0:
         if self.__player == Game.p1:
-          print(f"The Player passed because they couldn't move!")
-          return "p"
+          return "p",(f"The player passed because they couldn't move")
         elif self.__player == Game.p2:
           print(f"The AI passed because they couldn't move!")
-          return "p"
+          return "p",(f"The AI passed because they couldn't move!")
 
   def checkwinner(self):
+
+
+      players = { "w":"White","b":"Black"}
+
       freespaces = 0
       p1counters = 0
       p2counters = 0
@@ -81,25 +91,26 @@ class Game():
         self.switchplayer()
 
 
-
-      if self.reviewstate() == "p":
+      if freespaces == 0 or self.reviewstate() == "p":
+        winningplayer = None
         self.__winner = True
         if p1counters > p2counters:
-          print(f"The winner was {Game.p1}")
+          winningplayer = Game.p1
         if p2counters > p1counters:
-          print(f"The winner was {Game.p2}")
+          winningplayer = Game.p2
         if p1counters == p2counters:
-            print("It was a draw")
+          winningplayer = "Draw"
+      if OthelloConfiguration.OthelloConfig.CHOICE == "t":
+        if winningplayer != "Draw":
+          print(f"The winner was {players[winningplayer]}!")
+        else:
+          print("It was a draw!")
         return True
-      if freespaces == 0:
-        self.__winner = True
-        if p1counters > p2counters:
-          print(f"The winner was {Game.p1}")
-        if p2counters > p1counters:
-          print(f"The winner was {Game.p2}")
-        if p1counters == p2counters:
-          print("It was a draw")
-      return True
+      if OthelloConfiguration.OthelloConfig.CHOICE == "g":
+        if winningplayer != "Draw":
+          return (f"The winner was {players[winningplayer]}!")
+        else:
+          return ("It was a draw!")
 
   def play(self,row,col):
     col -= 1
