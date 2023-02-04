@@ -61,7 +61,7 @@ class Board():
           else:
             break
 
-    for i in range(col,0,-1):
+    for i in range(col,-1,-1):
       if self.__board[row][i] == player1:
         for b in range(i+1,col):
           if self.__board[row][b] == player1:
@@ -176,11 +176,11 @@ class Board():
         while True:
           newx = place[0] + k *d[0] 
           newy = place[1] + k *d[1] 
-          if 0 < newx < 9 and 0 < newy < 9:
+          if 0 <= newx < 9 and 0 <= newy < 9:
             try:
               if self.__board[newx][newy] != opposingplayer:
                 break
-              if self.__board[newx + d[0]][newy + d[1]] == Board.EMPTY:
+              if self.__board[newx + d[0]][newy + d[1]] == Board.EMPTY and (newx + d[0]) >= 0 and (newy + d[1]) >= 0:
                 self.__board[newx + d[0]][newy + d[1]] = Board.move
                 totalmoves += 1
             except:
@@ -192,13 +192,14 @@ class Board():
 
 
   def undomove(self,gamemode):
-    
+
+
     if len(self.__boards) == 1:
       return -1
     self.__boards.pop()
     if gamemode.split(" ")[-1] == "AI":
       self.__boards.pop()
-    self.__board = self.__boards[-1] #FIX
+    self.__board = copy.deepcopy(self.__boards[-1]) #FIX
 
 
   def countercount(self,evaluate=None):
@@ -449,6 +450,7 @@ class Board():
       edgeScore = 0
       for col in range(1,7):
         pass
+        
       #Edges
 
 

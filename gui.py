@@ -70,7 +70,7 @@ class SettingsWindow(MainWindow):
     togglecounters = tk.StringVar()
     togglecounters.set("Toggle move hint")
 
-    countermenu = tk.OptionMenu(frame,togglecounters,"Show possible moves","Don't Show Possible Moves")
+    countermenu = tk.OptionMenu(frame,togglecounters,"Show Possible Moves","Don't Show Possible Moves")
     countermenu.config(height=2)
     countermenu.pack(fill="x",expand=True,anchor=tk.E)
 
@@ -174,14 +174,17 @@ class GameWindow(MainWindow):
     backbutton.pack()
 
     undobuttonframe = tk.Frame(self.__window,highlightbackground="black",highlightthickness="3")
-    undobuttonframe.place(anchor="c",relx=0.2,rely=0.9)
-    undobutton = tk.Button(undobuttonframe,text="Undo",command=lambda: self.__undo(gridbox),font=("Arial",15))
-    undobutton.config(height=1,width=5)
-    undobutton.pack()
+    undobuttonframe.place(anchor="c",relx=0.5,rely=0.8)
+    self.__undobutton = tk.Button(undobuttonframe,text="Undo",command=lambda: self.__undo(gridbox),font=("Arial",15))
+    self.__undobutton.config(height=1,width=5)
+    self.__undobutton.pack()
 
-    messagesframe = tk.Frame(self.__window,highlightbackground="black",highlightthickness="3")
-    messagesframe.pack(fill="both",expand=True)
-    messagesframe.place(relx=0.5,rely=0.18,width=494,height=50,anchor="c")
+    self.__messagesframe = tk.Frame(self.__window,highlightbackground="black",highlightthickness="3")
+    self.__messagesframe.pack(fill="both",expand=True)
+    self.__messagesframe.place(relx=0.5,rely=0.18,width=494,height=50,anchor="c")
+
+    self.__passMessage = tk.Label(self.__messagesframe)
+    self.__passMessage.place(anchor="c",relx=0.5,rely=0.5)
 
     self.__updateScore()
 
@@ -220,7 +223,13 @@ class GameWindow(MainWindow):
       whitescoreboardframe.config(highlightbackground="#ADD8E6")
       
     
-  def __updateGrid(self,window): #changes the grid
+  def __updateGrid(self,window,AImove=None):
+
+    showAImove = False
+    if AImove != None: #changes the grid
+      aiRow = int(AImove[0]) - 1
+      aiCol = int(AImove[-1]) - 1
+      showAImove = True
     self.__game.board.getpossiblemoves(self.__game.getplayer(),self.__game.getopposingplayer())
     window.columnconfigure(8, weight=1)
     window.columnconfigure(8, weight=1)
@@ -234,6 +243,9 @@ class GameWindow(MainWindow):
             squarebutton.config(text="⏺",font=("Arial",70))
           if self.__game.board.getboard()[r][c] == "w":
             squarebutton.config(text="◯",font=("Arial",40))
+          if showAImove == True:
+            if r == aiRow and c == aiCol:
+              squarebutton.config(bg="yellow")
           if self.__togglecounters == True:
             if self.__game.board.getboard()[r][c] == "!":
               if self.__game.getplayer() == "w":
@@ -245,27 +257,34 @@ class GameWindow(MainWindow):
 
 
   def __turn(self,row,column,window):
+
+    players = {"w":"White","b":"Black"}
     
     row += 1
     column += 1
     if self.__gamemode == "2 Player":
       if self.__game.reviewstate() != "p":
         try:
-          self.__game.play(row,column)
-          self.__game.board.flipcounters(row,column,self.__game.getplayer())
-          self.__game.switchplayer()
-          self.__game.countercount()
+          if self.__game.play(row,column) == "EmptySquare":
+            self.__displayMessage("Place on an Empty Square!")
+            return
+          elif self.__game.play(row,column) == "InvalidMove":
+            self.__displayMessage("Can't make that move!")
+            return
+          else:
+            self.__displayMessage("")
+            self.__game.board.flipcounters(row,column,self.__game.getplayer())
+            self.__game.switchplayer()
+            self.__game.countercount()
         except:
           pass
         self.__updateGrid(window)
-      if self.__game.reviewstate() == "p":
+        if self.__game.checkwinner()[0] == True:
+          self.__displayMessage(self.__game.checkwinner()[1])
+          self.__freezeButtons()
+      else:
+        self.__displayMessage(f"{players[self.__game.getopposingplayer()]} has passed!")
         self.__updateGrid(window)
-        if self.__game.checkwinner():
-          displayWinner = tk.Label(self.__window,bg=MainWindow.COLOUR,text=self.__game.checkwinner(),font=("Arial",55)).place(relx=0.1)
-
-
-
-    #When a tile is pressed, if the gamemode is AI, play the move, then give the ai a chance to move
 
 
 
@@ -273,17 +292,25 @@ class GameWindow(MainWindow):
 
       if self.__game.reviewstate() != "p":
         try:
-          if self.__game.play(row,column): 
-            return #Give player chance to play again
+          if self.__game.play(row,column) == "EmptySquare":
+            self.__displayMessage("Place on an Empty Square!")
+            return
+          elif self.__game.play(row,column) == "InvalidMove":
+            self.__displayMessage("Can't make that move!")
+            return
           else:
+            self.__displayMessage("")
             self.__game.board.flipcounters(row,column,self.__game.getplayer())
             self.__game.switchplayer()
             self.__game.board.countercount()     
         except:
           print("something wrong (Player)")
-      else:
+      elif self.__game.reviewstate() == "p":
+        self.__displayMessage("The player has passed!")
         self.__updateGrid(window)
-        self.__game.checkwinner()
+        if self.__game.checkwinner()[0] == True:
+          self.__displayMessage(self.__game.checkwinner()[1])
+          self.__freezeButtons()
       self.__game.board.getpossiblemoves(self.__game.getplayer(),self.__game.getopposingplayer())
 
 
@@ -295,20 +322,29 @@ class GameWindow(MainWindow):
         self.__game.board.flipcounters(int(aimove[0]),int(aimove[-1]),self.__game.getplayer())
         self.__game.switchplayer()
         self.__game.board.countercount()
-        self.__updateGrid(window)
+        self.__updateGrid(window,aimove)
 
-      else:
+      if self.__game.reviewstate() == "p":
+        self.__displayMessage("The AI has passed!")
         self.__updateGrid(window)
-        if self.__game.checkwinner():
-          displayWinner = tk.Label(self.__window,bg=MainWindow.COLOUR,text=self.__game.checkwinner(),font=("Arial",55)).place(relx=0.1)
-
+        if self.__game.checkwinner()[0] == True:
+          self.__displayMessage(self.__game.checkwinner()[1])
+          self.__freezeButtons()
 
 
 
 
   def __undo(self,window):
     self.__game.undomove()
-    self.__updateGrid(window)      
+    self.__updateGrid(window)  
+    self.__passMessage.config(text="")    
+
+  def __displayMessage(self,message):
+    self.__passMessage.config(text=message,font=("Arial",18))
+  
+  def __freezeButtons(self):
+    self.__undobutton.config(state=tk.DISABLED)
+  
 
 
 
