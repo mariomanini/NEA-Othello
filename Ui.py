@@ -1,7 +1,7 @@
 from Othello import Game
 from abc import ABC, abstractmethod
 import tkinter as tk
-from gui import MainWindow
+from Gui import MainWindow
 
 
 
@@ -37,24 +37,22 @@ class Terminal(Ui):
 
   def run(self): #The continuous run of the game - printing out the board, getting the move, and trying to play the move.
     while True:
-      self.__game.board.getpossiblemoves(self.__game.getplayer(),self.__game.getopposingplayer()) #Add the move tiles
+      self.__game.board.getPossibleMoves(self.__game.getplayer(),self.__game.getOpposingPlayer()) #Add the move tiles
       print(self.__game) #Print the board
-      self.__game.reviewstate() #Che ck if there is a pass to be made
-      if self.__game.reviewstate() != "p": 
+      self.__game.reviewState() #Che ck if there is a pass to be made
+      if self.__game.reviewState() != "p": 
         row,col = self.__turn() #Recieve move input
         try:
           self.__game.play(row,col) #Make the move
-          self.__game.board.flipcounters(row,col,self.__game.getplayer())
-          self.__game.switchplayer() #Flip the counters and remove the possible moves
-          self.__game.board.countercount() #Count and display the counters
+          self.__game.board.flipCounters(row,col,self.__game.getplayer())
+          self.__game.switchPlayer() #Flip the counters and remove the possible moves
+          self.__game.board.counterCount() #Count and display the counters
         except:
           pass
       else:
-        if self.__game.checkwinner() == True:
+        if self.__game.checkWinner() == True:
           break
           
-
-
 
 class Gui(Ui):
 
@@ -68,6 +66,7 @@ class Gui(Ui):
   def run(self):
     mainwindow = MainWindow()
     mainwindow.mainloop()
+
 
 
 

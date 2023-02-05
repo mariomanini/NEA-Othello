@@ -4,9 +4,6 @@ from sys import *
 import OthelloConfiguration
 
 
-
-
-
 def start():
 
   try:
